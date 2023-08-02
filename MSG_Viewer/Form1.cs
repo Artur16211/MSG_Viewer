@@ -13,6 +13,14 @@ namespace MSG_Viewer
         public Form1()
         {
             InitializeComponent();
+
+            // El tamaño maximo de redimensionamiento horizontal es 1500
+            this.MaximumSize = new Size(1500, 5000);
+
+            // desabilitar el boton de maximizar
+            this.MaximizeBox = false;
+
+
             AllowDrop = true;
             DragEnter += Form1_DragEnter;
             DragDrop += Form1_DragDrop;
