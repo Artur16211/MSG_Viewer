@@ -66,7 +66,23 @@ namespace MSG_Viewer
             int availableWidth = flowLayoutPanel.ClientSize.Width - removelineTextBox.Width - realLastRemoveLineTextBox.Width;
             lastRemoveLineTextBox.Width = availableWidth;
             lastRemoveLineTextBox.AutoSize = false; // Deshabilitar el ajuste automático de ancho
+
         }
+
+        private void TextBox_Enter(object sender, EventArgs e)
+        {
+            // Cambiar el color de fondo al seleccionar el TextBox
+            TextBox textBox = sender as TextBox;
+            textBox.BackColor = Color.FromArgb(20, 20, 20); // Color de fondo al seleccionar
+        }
+
+        private void TextBox_Leave(object sender, EventArgs e)
+        {
+            // Cambiar el color de fondo nuevamente al perder el enfoque
+            TextBox textBox = sender as TextBox;
+            textBox.BackColor = Color.FromArgb(80, 80, 80); // Color de fondo original
+        }
+
 
         // Cambiar el evento Form1_Load para llamar al constructor adecuado con el argumento filePath
         private void Form1_Load(object sender, EventArgs e)
@@ -165,6 +181,8 @@ namespace MSG_Viewer
                     // Mostrar el nombre del archivo
                     Label fileNameLabel = new Label();
                     fileNameLabel.Text = filePath;
+                    // tendra un ancho de 500px
+                    fileNameLabel.Width = 500;
                     flowLayoutPanel.Controls.Add(fileNameLabel);
                     // Agregar un salto fila
                     flowLayoutPanel.SetFlowBreak(fileNameLabel, true);
@@ -214,6 +232,16 @@ namespace MSG_Viewer
                         // el ancho del textbox sera el ancho del contenedor menos el ancho de los otros 2 textbox
                         //lastRemoveLineTextBox.Width = flowLayoutPanel.ClientSize.Width - removelineTextBox.Width - realLastRemoveLineTextBox.Width;
                         //lastRemoveLineTextBox.AutoSize = false; // Agrega esta línea para deshabilitar el ajuste automático de ancho
+
+                        // Asignar manejadores de eventos Enter y Leave a cada TextBox
+                        removelineTextBox.Enter += TextBox_Enter;
+                        removelineTextBox.Leave += TextBox_Leave;
+
+                        lastRemoveLineTextBox.Enter += TextBox_Enter;
+                        lastRemoveLineTextBox.Leave += TextBox_Leave;
+
+                        realLastRemoveLineTextBox.Enter += TextBox_Enter;
+                        realLastRemoveLineTextBox.Leave += TextBox_Leave;
 
                         columnCount += 3;
                         if (columnCount >= 3) // Change '3' to the desired number of columns per row
