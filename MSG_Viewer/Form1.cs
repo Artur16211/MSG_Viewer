@@ -32,7 +32,10 @@ namespace MSG_Viewer
             // Aplicar modo oscuro a los controles
             ApplyDarkMode();
             InitializeTextBoxes();
+            this.FormClosing += Form1_FormClosing;
         }
+
+        private bool unsavedChanges = false;
 
         private void InitializeTextBoxes()
         {
@@ -78,6 +81,7 @@ namespace MSG_Viewer
 
         private void TextBox_Leave(object sender, EventArgs e)
         {
+            unsavedChanges = true;
             // Cambiar el color de fondo nuevamente al perder el enfoque
             TextBox textBox = sender as TextBox;
             textBox.BackColor = Color.FromArgb(80, 80, 80); // Color de fondo original
@@ -427,6 +431,8 @@ namespace MSG_Viewer
                     // Guardamos el contenido del archivo usando el método SaveToFile
                     await SaveToFile(loadedFilePath, sb.ToString());
                     MessageBox.Show("Archivo guardado exitosamente.");
+
+                    unsavedChanges = false;
                 }
                 catch (Exception ex)
                 {
@@ -450,6 +456,28 @@ namespace MSG_Viewer
                 await writer.WriteAsync(content);
             }
         }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (unsavedChanges)
+            {
+                // Mostrar un mensaje de confirmación antes de cerrar el formulario
+                DialogResult result = MessageBox.Show("¿Deseas guardar los cambios antes de salir?", "Salir", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+
+                if (result == DialogResult.Yes)
+                {
+                    // Guardar los cambios y permitir que el formulario se cierre
+                    btnSave_Click_1(sender, e);
+                }
+                else if (result == DialogResult.Cancel)
+                {
+                    // Cancelar el cierre del formulario
+                    e.Cancel = true;
+                }
+            }
+        }
+
+
 
 
     }
