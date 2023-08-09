@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -35,6 +36,20 @@ namespace MSG_Viewer
             InitializeTextBoxes();
             this.FormClosing += Form1_FormClosing;
         }
+
+
+        private Dictionary<string, string> replacement_dict = new Dictionary<string, string>
+        {
+            // Definiciones de reemplazo
+            { "á", "èŒ¨" },
+            { "é", "å§»" },
+            { "í", "sèƒ¤" },
+            { "ó", "å\u0090‹" },
+            { "ú", "é›¨" },
+            { "ñ", "éš " },
+            { "¿", "å¤·" },
+            { "¡", "æ–¡" },
+        };
 
         private bool unsavedChanges = false;
 
@@ -177,7 +192,7 @@ namespace MSG_Viewer
             Font newFont = new Font("Arial", 16, FontStyle.Regular); // Cambia "Arial" por la fuente que prefieras y 12 por el tamaño deseado.
             try
             {
-                using (StreamReader reader = new StreamReader(filePath, Encoding.GetEncoding("shift_jis")))
+                using (StreamReader reader = new StreamReader(filePath, Encoding.GetEncoding("Windows-1252")))
                 {
                     loadedFilePath = filePath; // Establecer la ruta del archivo cargado
                     // Limpiar el contenedor antes de agregar nuevos controles
@@ -296,6 +311,25 @@ namespace MSG_Viewer
         }
 
 
+        // Función para reemplazar caracteres utilizando los diccionarios
+        private string ReplaceCharacters(string input)
+        {
+            foreach (KeyValuePair<string, string> kvp in replacement_dict)
+            {
+                input = input.Replace(kvp.Key, kvp.Value);
+            }
+
+            return input;
+        }
+        private string ReplaceCharacters2(string input)
+        {
+            foreach (KeyValuePair<string, string> kvp in replacement_dict)
+            {
+                input = input.Replace(kvp.Value, kvp.Key);
+            }
+
+            return input;
+        }
 
 
         private LineResult ProcessLine(string line)
@@ -313,7 +347,10 @@ namespace MSG_Viewer
 
                 for (int i = 0; i < line.Length; i++)
                 {
+                    
+
                     char character = line[i];
+
 
                     if (character == '[')
                     {
@@ -337,7 +374,7 @@ namespace MSG_Viewer
                     else if (!insideBrackets && !skipNextBrackets)
                     {
                         // fix femMC
-                        if (character == '縲')
+                        if (character == 'ã' || character == '€')
                         {
                             i++;
                         }
@@ -378,6 +415,10 @@ namespace MSG_Viewer
                 realLastRemoveLine = resultLine.ToString().Replace(lastRemoveLine, "");
 
                 string removeline = line.Replace(resultLine.ToString(), "");
+                //
+                removeline = ReplaceCharacters2(removeline);
+                lastRemoveLine = ReplaceCharacters2(lastRemoveLine);
+                realLastRemoveLine = ReplaceCharacters2(realLastRemoveLine);
 
                 Console.WriteLine("removeline: " + removeline);
                 Console.WriteLine("lastRemoveLine: " + lastRemoveLine);
@@ -400,6 +441,7 @@ namespace MSG_Viewer
         {
 
         }
+
 
         private async void btnSave_Click_1(object sender, EventArgs e)
         {
@@ -456,15 +498,16 @@ namespace MSG_Viewer
 
 
 
-
-
         private async Task SaveToFile(string filePath, string content)
         {
-            using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.GetEncoding("shift_jis")))
-            {
-                await writer.WriteAsync(content);
-            }
+            content = ReplaceCharacters(content);
+
+            using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.GetEncoding("Windows-1252")))
+            await writer.WriteAsync(content);
+                
+            
         }
+
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
