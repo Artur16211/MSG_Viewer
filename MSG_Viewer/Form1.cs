@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -176,7 +177,7 @@ namespace MSG_Viewer
             Font newFont = new Font("Arial", 16, FontStyle.Regular); // Cambia "Arial" por la fuente que prefieras y 12 por el tamaño deseado.
             try
             {
-                using (StreamReader reader = new StreamReader(filePath))
+                using (StreamReader reader = new StreamReader(filePath, Encoding.GetEncoding("shift_jis")))
                 {
                     loadedFilePath = filePath; // Establecer la ruta del archivo cargado
                     // Limpiar el contenedor antes de agregar nuevos controles
@@ -320,6 +321,7 @@ namespace MSG_Viewer
                         int endIndex = line.IndexOf(']', i + 1);
                         if (endIndex != -1)
                         {
+                         
                             string nextWord = line.Substring(i + 1, endIndex - i - 1).Trim();
                             if (nextWord == "var" || nextWord == "f 4 1" || nextWord == "f 4 2" || nextWord == "clr" || nextWord == "Navi")
                             {
@@ -334,8 +336,15 @@ namespace MSG_Viewer
                     }
                     else if (!insideBrackets && !skipNextBrackets)
                     {
+                        // fix femMC
+                        if (character == '縲')
+                        {
+                            i++;
+                        }
+                        else { 
                         resultLine.Append(line.Substring(i));
                         break;
+                        }
                     }
                 }
 
@@ -451,7 +460,7 @@ namespace MSG_Viewer
 
         private async Task SaveToFile(string filePath, string content)
         {
-            using (StreamWriter writer = new StreamWriter(filePath, false))
+            using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.GetEncoding("shift_jis")))
             {
                 await writer.WriteAsync(content);
             }
