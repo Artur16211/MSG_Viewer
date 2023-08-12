@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -36,20 +35,6 @@ namespace MSG_Viewer
             InitializeTextBoxes();
             this.FormClosing += Form1_FormClosing;
         }
-
-
-        private Dictionary<string, string> replacement_dict = new Dictionary<string, string>
-        {
-            // Definiciones de reemplazo
-            { "á", "èŒ¨" },
-            { "é", "å§»" },
-            { "í", "sèƒ¤" },
-            { "ó", "å\u0090‹" },
-            { "ú", "é›¨" },
-            { "ñ", "éš " },
-            { "¿", "å¤·" },
-            { "¡", "æ–¡" },
-        };
 
         private bool unsavedChanges = false;
 
@@ -111,11 +96,11 @@ namespace MSG_Viewer
 
             if (args.Length > 1 && File.Exists(args[1]) && Path.GetExtension(args[1]).Equals(".msg", StringComparison.InvariantCultureIgnoreCase))
             {
-                
+
                 string filePath = args[1];
                 this.Size = new Size(1500, 600);
                 LoadFile(filePath).Wait(); // Usamos Wait para esperar a que termine la carga del archivo antes de continuar
-                
+
             }
             else
             {
@@ -187,12 +172,52 @@ namespace MSG_Viewer
         private TextBox lastRemoveLineTextBox;
         private TextBox realLastRemoveLineTextBox;
 
+        private Dictionary<string, string> replacement_dict = new Dictionary<string, string>
+        {
+            // Definiciones de reemplazo
+            {"á", "茨"},
+            {"é", "姻"},
+            {"í", "胤"},
+            {"ó", "吋"},
+            {"ú", "雨"},
+            {"ñ", "隠"},
+            {"¿", "夷"},
+            {"¡", "斡"},
+            {"Á", "威"},
+            {"É", "畏"},
+            {"Í", "緯"},
+            {"Ó", "遺"},
+            {"Ú", "郁"},
+            {"Ñ", "謂"}
+        };
+
+
+        // Función para reemplazar caracteres utilizando los diccionarios
+        private string ReplaceCharacters(string input)
+        {
+            foreach (KeyValuePair<string, string> kvp in replacement_dict)
+            {
+                input = input.Replace(kvp.Key, kvp.Value);
+            }
+
+            return input;
+        }
+        private string ReplaceCharacters2(string input)
+        {
+            foreach (KeyValuePair<string, string> kvp in replacement_dict)
+            {
+                input = input.Replace(kvp.Value, kvp.Key);
+            }
+
+            return input;
+        }
+
         private async Task LoadFile(string filePath)
         {
             Font newFont = new Font("Arial", 16, FontStyle.Regular); // Cambia "Arial" por la fuente que prefieras y 12 por el tamaño deseado.
             try
             {
-                using (StreamReader reader = new StreamReader(filePath, Encoding.GetEncoding("Windows-1252")))
+                using (StreamReader reader = new StreamReader(filePath))
                 {
                     loadedFilePath = filePath; // Establecer la ruta del archivo cargado
                     // Limpiar el contenedor antes de agregar nuevos controles
@@ -202,7 +227,7 @@ namespace MSG_Viewer
                     Label fileNameLabel = new Label();
                     fileNameLabel.Text = filePath;
                     // tendra un ancho de 500px
-                    fileNameLabel.Width = 500;
+                    fileNameLabel.Width = 1500;
                     flowLayoutPanel.Controls.Add(fileNameLabel);
                     // Agregar un salto fila
                     flowLayoutPanel.SetFlowBreak(fileNameLabel, true);
@@ -234,7 +259,7 @@ namespace MSG_Viewer
                         lastRemoveLineTextBox.BorderStyle = BorderStyle.None;
                         lastRemoveLineTextBox.ReadOnly = false;
                         lastRemoveLineTextBox.Font = newFont; // Asignar la fuente creada
-                        
+
                         lastRemoveLineTextBox.Width = 1300;
 
                         flowLayoutPanel.Controls.Add(lastRemoveLineTextBox);
@@ -276,7 +301,7 @@ namespace MSG_Viewer
                         AdjustTextBoxWidth();
 
                     }
-                    
+
 
                 }
             }
@@ -311,25 +336,6 @@ namespace MSG_Viewer
         }
 
 
-        // Función para reemplazar caracteres utilizando los diccionarios
-        private string ReplaceCharacters(string input)
-        {
-            foreach (KeyValuePair<string, string> kvp in replacement_dict)
-            {
-                input = input.Replace(kvp.Key, kvp.Value);
-            }
-
-            return input;
-        }
-        private string ReplaceCharacters2(string input)
-        {
-            foreach (KeyValuePair<string, string> kvp in replacement_dict)
-            {
-                input = input.Replace(kvp.Value, kvp.Key);
-            }
-
-            return input;
-        }
 
 
         private LineResult ProcessLine(string line)
@@ -347,10 +353,7 @@ namespace MSG_Viewer
 
                 for (int i = 0; i < line.Length; i++)
                 {
-                    
-
                     char character = line[i];
-
 
                     if (character == '[')
                     {
@@ -358,7 +361,6 @@ namespace MSG_Viewer
                         int endIndex = line.IndexOf(']', i + 1);
                         if (endIndex != -1)
                         {
-                         
                             string nextWord = line.Substring(i + 1, endIndex - i - 1).Trim();
                             if (nextWord == "var" || nextWord == "f 4 1" || nextWord == "f 4 2" || nextWord == "clr" || nextWord == "Navi")
                             {
@@ -373,14 +375,15 @@ namespace MSG_Viewer
                     }
                     else if (!insideBrackets && !skipNextBrackets)
                     {
-                        // fix femMC
-                        if (character == 'ã' || character == '€')
+                        // Fix femMC
+                        if (i + 1 < line.Length && line[i] == '　' && line[i + 1] == '　' && line[i + 2] == ' ')
                         {
-                            i++;
+                            i += 2; // Avanza dos caracteres (dos espacios)
                         }
-                        else { 
-                        resultLine.Append(line.Substring(i));
-                        break;
+                        else
+                        {
+                            resultLine.Append(line.Substring(i));
+                            break;
                         }
                     }
                 }
@@ -415,10 +418,10 @@ namespace MSG_Viewer
                 realLastRemoveLine = resultLine.ToString().Replace(lastRemoveLine, "");
 
                 string removeline = line.Replace(resultLine.ToString(), "");
-                //
-                removeline = ReplaceCharacters2(removeline);
+
+                //removeline = ReplaceCharacters(removeline);
                 lastRemoveLine = ReplaceCharacters2(lastRemoveLine);
-                realLastRemoveLine = ReplaceCharacters2(realLastRemoveLine);
+                //realLastRemoveLine = ReplaceCharacters(realLastRemoveLine);
 
                 Console.WriteLine("removeline: " + removeline);
                 Console.WriteLine("lastRemoveLine: " + lastRemoveLine);
@@ -441,7 +444,6 @@ namespace MSG_Viewer
         {
 
         }
-
 
         private async void btnSave_Click_1(object sender, EventArgs e)
         {
@@ -498,16 +500,17 @@ namespace MSG_Viewer
 
 
 
+
+
         private async Task SaveToFile(string filePath, string content)
         {
             content = ReplaceCharacters(content);
 
-            using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.GetEncoding("Windows-1252")))
-            await writer.WriteAsync(content);
-                
-            
+            using (StreamWriter writer = new StreamWriter(filePath, false))
+            {
+                await writer.WriteAsync(content);
+            }
         }
-
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
