@@ -376,9 +376,9 @@ namespace MSG_Viewer
                     else if (!insideBrackets && !skipNextBrackets)
                     {
                         // Fix femMC
-                        if (i + 1 < line.Length && line[i] == '　' && line[i + 1] == '　' && line[i + 2] == ' ')
+                        if (i + 1 < line.Length && line[i] == '　' && line[i + 1] == '　')
                         {
-                            i += 2; // Avanza dos caracteres (dos espacios)
+                            i ++; // Avanza dos caracteres (dos espacios)
                         }
                         else
                         {
