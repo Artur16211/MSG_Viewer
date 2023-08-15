@@ -30,6 +30,7 @@
         {
             this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.btnSave = new System.Windows.Forms.Button();
+            this.labelMessage = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // flowLayoutPanel
@@ -39,6 +40,7 @@
             this.flowLayoutPanel.Name = "flowLayoutPanel";
             this.flowLayoutPanel.Size = new System.Drawing.Size(852, 428);
             this.flowLayoutPanel.TabIndex = 0;
+            this.flowLayoutPanel.Visible = false;
             this.flowLayoutPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel_Paint);
             // 
             // btnSave
@@ -51,13 +53,26 @@
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click_1);
             // 
+            // labelMessage
+            // 
+            this.labelMessage.AutoSize = true;
+            this.labelMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelMessage.Location = new System.Drawing.Point(687, 5);
+            this.labelMessage.Name = "labelMessage";
+            this.labelMessage.Size = new System.Drawing.Size(188, 24);
+            this.labelMessage.TabIndex = 0;
+            this.labelMessage.Text = "Drag a .msg file here.";
+            this.labelMessage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(876, 474);
+            this.Controls.Add(this.labelMessage);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.flowLayoutPanel);
             this.Name = "Form1";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -65,6 +80,7 @@
 
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
         private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.Label labelMessage;
     }
 }
 

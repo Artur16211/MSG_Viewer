@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+//using System.Runtime.InteropServices;
 
 namespace MSG_Viewer
 {
@@ -34,6 +35,7 @@ namespace MSG_Viewer
             ApplyDarkMode();
             InitializeTextBoxes();
             this.FormClosing += Form1_FormClosing;
+            this.Text = "MSG Viewer";
         }
 
         private bool unsavedChanges = false;
@@ -137,6 +139,8 @@ namespace MSG_Viewer
             // Color de fondo oscuro para los botones
             btnSave.BackColor = Color.FromArgb(80, 80, 80);
             btnSave.ForeColor = Color.White;
+
+
         }
 
 
@@ -212,9 +216,25 @@ namespace MSG_Viewer
             return input;
         }
 
+        private void UpdateWindowTitle(string filePath)
+        {
+            if (!string.IsNullOrEmpty(loadedFilePath))
+            {
+                // Mostrar el nombre del archivo cargado en la barra de título con la variable filePath
+                this.Text = Application.ProductName + " - " + filePath;
+            }
+            else
+            {
+                this.Text = Application.ProductName;
+            }
+        }
+
         private async Task LoadFile(string filePath)
         {
-            Font newFont = new Font("Arial", 16, FontStyle.Regular); // Cambia "Arial" por la fuente que prefieras y 12 por el tamaño deseado.
+            // hide labelMessage
+            labelMessage.Visible = false;
+            flowLayoutPanel.Visible = true;
+            Font newFont = new Font("Arial", 16, FontStyle.Regular);
             try
             {
                 using (StreamReader reader = new StreamReader(filePath))
@@ -223,11 +243,13 @@ namespace MSG_Viewer
                     // Limpiar el contenedor antes de agregar nuevos controles
                     flowLayoutPanel.Controls.Clear();
 
+                    UpdateWindowTitle(filePath);
+
                     // Mostrar el nombre del archivo
                     Label fileNameLabel = new Label();
                     fileNameLabel.Text = filePath;
                     // tendra un ancho de 500px
-                    fileNameLabel.Width = 1500;
+                    fileNameLabel.Width = 10000;
                     flowLayoutPanel.Controls.Add(fileNameLabel);
                     // Agregar un salto fila
                     flowLayoutPanel.SetFlowBreak(fileNameLabel, true);
@@ -483,18 +505,18 @@ namespace MSG_Viewer
 
                     // Guardamos el contenido del archivo usando el método SaveToFile
                     await SaveToFile(loadedFilePath, sb.ToString());
-                    MessageBox.Show("Archivo guardado exitosamente.");
+                    MessageBox.Show("File saved successfully.");
 
                     unsavedChanges = false;
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error al guardar el archivo: " + ex.Message);
+                    MessageBox.Show("Error while saving the file: " + ex.Message);
                 }
             }
             else
             {
-                MessageBox.Show("No se ha cargado ningún archivo.");
+                MessageBox.Show("No file has been loaded.");
             }
         }
 
@@ -517,7 +539,7 @@ namespace MSG_Viewer
             if (unsavedChanges)
             {
                 // Mostrar un mensaje de confirmación antes de cerrar el formulario
-                DialogResult result = MessageBox.Show("¿Deseas guardar los cambios antes de salir?", "Salir", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+                DialogResult result = MessageBox.Show("Do you want to save the changes before exiting?", "Exit", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
 
                 if (result == DialogResult.Yes)
                 {
