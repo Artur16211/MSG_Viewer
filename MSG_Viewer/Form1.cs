@@ -5,7 +5,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-//using System.Runtime.InteropServices;
 
 namespace MSG_Viewer
 {
@@ -400,7 +399,7 @@ namespace MSG_Viewer
                         // Fix femMC
                         if (i + 1 < line.Length && line[i] == '　' && line[i + 1] == '　')
                         {
-                            i ++; // Avanza dos caracteres (dos espacios)
+                            i++; // Avanza dos caracteres (dos espacios)
                         }
                         else
                         {
@@ -433,6 +432,8 @@ namespace MSG_Viewer
                 {
                     lastRemoveLine = lastRemoveLine.Substring(0, lastRemoveLine.Length - 3);
                 }
+
+
                 // delete the [w] and [e]
                 lastRemoveLine = lastRemoveLine.Replace("[w]", "");
                 lastRemoveLine = lastRemoveLine.Replace("[e]", "");
@@ -440,6 +441,14 @@ namespace MSG_Viewer
                 realLastRemoveLine = resultLine.ToString().Replace(lastRemoveLine, "");
 
                 string removeline = line.Replace(resultLine.ToString(), "");
+
+                // lastRemoveLine variable, elimina cada [n] siempre y cuando no sea un [n][
+                if (lastRemoveLine.Contains("[n]") && !lastRemoveLine.Contains("[n]["))
+                {
+                    lastRemoveLine = lastRemoveLine.Replace("[n]", " ");
+                }
+                
+                
 
                 //removeline = ReplaceCharacters(removeline);
                 lastRemoveLine = ReplaceCharacters2(lastRemoveLine);
