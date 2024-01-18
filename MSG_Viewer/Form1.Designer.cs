@@ -31,6 +31,7 @@
             this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.btnSave = new System.Windows.Forms.Button();
             this.labelMessage = new System.Windows.Forms.Label();
+            this.openog = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // flowLayoutPanel
@@ -64,9 +65,20 @@
             this.labelMessage.Text = "Drag a .msg file here.";
             this.labelMessage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
+            // openog
+            // 
+            this.openog.Location = new System.Drawing.Point(93, 5);
+            this.openog.Name = "openog";
+            this.openog.Size = new System.Drawing.Size(75, 23);
+            this.openog.TabIndex = 2;
+            this.openog.Text = "Open OG File";
+            this.openog.UseVisualStyleBackColor = true;
+            this.openog.Click += new System.EventHandler(this.openog_Click);
+            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(876, 474);
+            this.Controls.Add(this.openog);
             this.Controls.Add(this.labelMessage);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.flowLayoutPanel);
@@ -81,6 +93,7 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Label labelMessage;
+        private System.Windows.Forms.Button openog;
     }
 }
 

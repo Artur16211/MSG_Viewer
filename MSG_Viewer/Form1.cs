@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -89,6 +90,12 @@ namespace MSG_Viewer
             textBox.BackColor = Color.FromArgb(80, 80, 80); // Color de fondo original
         }
 
+        private async Task LoadFileFromCommandLine(string filePath)
+        {
+            this.Size = new Size(1500, 600);
+            await LoadFile(filePath);
+        }
+
 
         // Cambiar el evento Form1_Load para llamar al constructor adecuado con el argumento filePath
         private void Form1_Load(object sender, EventArgs e)
@@ -97,17 +104,15 @@ namespace MSG_Viewer
 
             if (args.Length > 1 && File.Exists(args[1]) && Path.GetExtension(args[1]).Equals(".msg", StringComparison.InvariantCultureIgnoreCase))
             {
-
                 string filePath = args[1];
-                this.Size = new Size(1500, 600);
-                LoadFile(filePath).Wait(); // Usamos Wait para esperar a que termine la carga del archivo antes de continuar
-
+                LoadFileFromCommandLine(filePath).Wait(); // Usamos Wait para esperar a que termine la carga del archivo antes de continuar
             }
             else
             {
                 this.Size = new Size(1500, 600);
             }
         }
+
 
 
 
@@ -138,6 +143,8 @@ namespace MSG_Viewer
             // Color de fondo oscuro para los botones
             btnSave.BackColor = Color.FromArgb(80, 80, 80);
             btnSave.ForeColor = Color.White;
+            openog.BackColor = Color.FromArgb(80, 80, 80);
+            openog.ForeColor = Color.White;
 
 
         }
@@ -563,8 +570,92 @@ namespace MSG_Viewer
             }
         }
 
+        private void openog_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(loadedFilePath))
+            {
+                try
+                {
+                    // Leer la ruta de destino desde el archivo de configuración
+                    string configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config.txt");
+                    string newRootDirectory = ReadConfig(configFilePath);
 
+                    if (string.IsNullOrEmpty(newRootDirectory))
+                    {
+                        MessageBox.Show("Error: No se pudo leer la configuración de la ruta de destino.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
 
+                    // Obtener la ruta relativa al directorio original
+                    string originalDirectory = Path.GetDirectoryName(loadedFilePath);
+                    string relativePath = originalDirectory.Replace(Path.GetPathRoot(originalDirectory), "");
 
+                    // Obtener las subcarpetas (componentes) de la ruta relativa
+                    string[] subfolders = relativePath.Split(Path.DirectorySeparatorChar);
+
+                    // Imprimir las subcarpetas en la consola
+                    //Console.WriteLine("Subcarpetas:");
+                    //foreach (var subfolder in subfolders)
+                    //{
+                        //Console.WriteLine(subfolder);
+                    //}
+
+                    // Intentar acceder al archivo en la nueva ruta usando la última subcarpeta
+                    string subfolderPath = Path.Combine(newRootDirectory, subfolders.Last(), Path.GetFileName(loadedFilePath));
+
+                    if (File.Exists(subfolderPath))
+                    {
+                        // Si el archivo existe, lanzar una nueva instancia de la aplicación con la nueva ruta como argumento
+                        System.Diagnostics.Process.Start(Application.ExecutablePath, subfolderPath);
+                        return;
+                    }
+
+                    // Si el archivo no se encuentra en la última subcarpeta, intentar con las dos últimas juntas
+                    if (subfolders.Length >= 2)
+                    {
+                        subfolderPath = Path.Combine(newRootDirectory, Path.Combine(subfolders.Skip(subfolders.Length - 2).ToArray()), Path.GetFileName(loadedFilePath));
+
+                        if (File.Exists(subfolderPath))
+                        {
+                            // Si el archivo existe, lanzar una nueva instancia de la aplicación con la nueva ruta como argumento
+                            System.Diagnostics.Process.Start(Application.ExecutablePath, subfolderPath);
+                            return;
+                        }
+                    }
+
+                    // Mostrar un mensaje de error si el archivo no se encontró en ninguna subcarpeta
+                    MessageBox.Show("Error: El archivo no se encontró en la nueva ubicación.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error while opening the file: " + ex.Message);
+                }
+            }
+            else
+            {
+                MessageBox.Show("No file has been loaded.");
+            }
+        }
+
+        private string ReadConfig(string configFilePath)
+        {
+            try
+            {
+                // Leer la ruta de destino desde el archivo de configuración
+                if (File.Exists(configFilePath))
+                {
+                    return File.ReadAllText(configFilePath).Trim();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error while reading configuration: " + ex.Message);
+                return null;
+            }
+        }
     }
 }
